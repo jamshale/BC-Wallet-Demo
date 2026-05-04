@@ -1,55 +1,104 @@
 import type { Request, Response } from 'express'
 
 import { Router } from 'express'
+import { NotFoundError } from 'routing-controllers'
+import { Container } from 'typedi'
 
+import { ShowcaseController } from '../controllers/ShowcaseController'
+import { AdminShowcaseController } from '../controllers/admin/AdminShowcaseController'
 import { requireRole } from '../middleware/requireAdmin'
 import logger from '../utils/logger'
 
 const router = Router()
 
+const showcaseController = Container.get(ShowcaseController)
+const adminShowcaseController = Container.get(AdminShowcaseController)
+
 /**
  * GET /admin/showcases
  * List all showcases.
  */
-router.get('/', requireRole(['admin', 'creator', 'viewer']), (_req: Request, res: Response) => {
+router.get('/', requireRole(['admin', 'creator', 'viewer']), async (_req: Request, res: Response) => {
   logger.debug('Admin: list showcases')
-  res.json({ message: 'List showcases — not yet implemented' })
+  try {
+    const showcases = await showcaseController.getShowcases()
+    res.json(showcases)
+  } catch (error) {
+    logger.error(error, 'Error fetching showcases')
+    res.status(500).json({ error: 'Failed to fetch showcases' })
+  }
 })
 
 /**
  * GET /admin/showcases/:id
  * Get a single showcase by id.
  */
-router.get('/:id', requireRole(['admin', 'creator', 'viewer']), (req: Request, res: Response) => {
+router.get('/:id', requireRole(['admin', 'creator', 'viewer']), async (req: Request, res: Response) => {
   logger.debug({ id: req.params.id }, 'Admin: get showcase')
-  res.json({ message: `Get showcase ${req.params.id} — not yet implemented` })
+  try {
+    const showcase = await showcaseController.getShowcaseById(req.params.id)
+    res.json(showcase)
+  } catch (error) {
+    logger.error(error, 'Error fetching showcase')
+    if (error instanceof NotFoundError) {
+      res.status(404).json({ error: 'Showcase not found' })
+    } else {
+      res.status(500).json({ error: 'Failed to fetch showcase' })
+    }
+  }
 })
 
 /**
  * POST /admin/showcases
  * Create a new showcase.
  */
-router.post('/', requireRole(['admin', 'creator']), (req: Request, res: Response) => {
+router.post('/', requireRole(['admin', 'creator']), async (req: Request, res: Response) => {
   logger.debug({ body: req.body }, 'Admin: create showcase')
-  res.status(201).json({ message: 'Create showcase — not yet implemented' })
+  try {
+    const showcase = await adminShowcaseController.createShowcase(req.body)
+    res.status(201).json(showcase)
+  } catch (error) {
+    logger.error(error, 'Error creating showcase')
+    res.status(500).json({ error: 'Failed to create showcase' })
+  }
 })
 
 /**
  * PUT /admin/showcases/:id
  * Replace a showcase.
  */
-router.put('/:id', requireRole(['admin', 'creator']), (req: Request, res: Response) => {
+router.put('/:id', requireRole(['admin', 'creator']), async (req: Request, res: Response) => {
   logger.debug({ id: req.params.id, body: req.body }, 'Admin: update showcase')
-  res.json({ message: `Update showcase ${req.params.id} — not yet implemented` })
+  try {
+    const showcase = await adminShowcaseController.updateShowcase(req.params.id, req.body)
+    res.json(showcase)
+  } catch (error) {
+    logger.error(error, 'Error updating showcase')
+    if (error instanceof NotFoundError) {
+      res.status(404).json({ error: 'Showcase not found' })
+    } else {
+      res.status(500).json({ error: 'Failed to update showcase' })
+    }
+  }
 })
 
 /**
  * DELETE /admin/showcases/:id
  * Delete a showcase.
  */
-router.delete('/:id', requireRole(['admin']), (req: Request, res: Response) => {
+router.delete('/:id', requireRole(['admin']), async (req: Request, res: Response) => {
   logger.debug({ id: req.params.id }, 'Admin: delete showcase')
-  res.status(204).send()
+  try {
+    await adminShowcaseController.deleteShowcase(req.params.id)
+    res.status(204).send()
+  } catch (error) {
+    logger.error(error, 'Error deleting showcase')
+    if (error instanceof NotFoundError) {
+      res.status(404).json({ error: 'Showcase not found' })
+    } else {
+      res.status(500).json({ error: 'Failed to delete showcase' })
+    }
+  }
 })
 
 export default router

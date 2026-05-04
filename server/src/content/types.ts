@@ -78,9 +78,9 @@ export interface RevocationInfoItem {
 }
 
 export interface Persona {
-  name: string
-  type: string
-  image: string
+  name?: string
+  type?: string
+  image?: string
 }
 
 export type ShowcaseStatus = 'active' | 'hidden' | 'pending'
@@ -89,12 +89,12 @@ export interface Showcase {
   name: string
   status: ShowcaseStatus
   description?: string
-  persona: Persona
-  credentials: string[]
+  persona?: Persona
   progressBar: ProgressBarStep[]
   introduction: IntroductionStep[]
   scenarios: Scenario[]
   revocationInfo?: RevocationInfoItem[]
+  credentials: string[]
 }
 
 export interface ScenarioCard {

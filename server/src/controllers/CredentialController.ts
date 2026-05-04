@@ -1,7 +1,8 @@
-import { Body, Get, JsonController, Param, Post } from 'routing-controllers'
+import { Body, Get, JsonController, NotFoundError, Param, Post } from 'routing-controllers'
 import { Service } from 'typedi'
 
 import { Credential } from '../content/types'
+import { CredentialModel } from '../db/models/Credential'
 import logger from '../utils/logger'
 import { resolveCredentialAttributes } from '../utils/resolveMarkers'
 import { tractionRequest } from '../utils/tractionHelper'
@@ -9,6 +10,47 @@ import { tractionRequest } from '../utils/tractionHelper'
 @JsonController('/credentials')
 @Service()
 export class CredentialController {
+  /**
+   * Retrieve all credentials from database
+   */
+  @Get('/')
+  public async getAllCredentials() {
+    logger.debug('Fetching all credentials')
+    const credentials = await CredentialModel.find().lean()
+    logger.debug({ count: credentials.length }, 'Credentials fetched')
+    // Map to frontend Credential type with id instead of _id
+    return credentials.map((cred: any) => ({
+      id: String(cred._id),
+      name: cred.name,
+      icon: cred.icon,
+      version: cred.version,
+      attributes: cred.attributes || [],
+    }))
+  }
+
+  /**
+   * Retrieve credential by id
+   */
+  @Get('/:credentialId')
+  public async getCredentialById(@Param('credentialId') credentialId: string) {
+    logger.debug({ credentialId }, 'Fetching credential by id')
+    const credential = await CredentialModel.findById(credentialId).lean()
+
+    if (!credential) {
+      logger.warn({ credentialId }, 'Credential not found')
+      throw new NotFoundError(`Credential with id "${credentialId}" not found.`)
+    }
+
+    logger.debug({ credentialId }, 'Credential found')
+    // Map to frontend Credential type with id instead of _id
+    return {
+      id: String((credential as any)._id),
+      name: (credential as any).name,
+      icon: (credential as any).icon,
+      version: (credential as any).version,
+      attributes: (credential as any).attributes || [],
+    }
+  }
   @Get('/connId/:connId')
   public async getCredByConnId(@Param('connId') connId: string) {
     logger.debug({ connId }, 'Fetching credentials by connection id')

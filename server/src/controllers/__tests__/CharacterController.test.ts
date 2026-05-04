@@ -19,7 +19,7 @@ beforeAll(async () => {
   await Promise.all(
     showcases.map((s) =>
       ShowcaseModel.findOneAndUpdate(
-        { 'persona.type': s.persona.type },
+        { 'persona.type': s.persona?.type },
         { $set: s },
         {
           upsert: true,
@@ -44,13 +44,13 @@ describe('ShowcaseController', () => {
 
   describe('getShowcaseById', () => {
     it('returns the showcase when found by type', async () => {
-      const result = await controller.getShowcaseById('Student')
+      const result = await controller.getShowcaseById('Student Showcase')
 
       expect(result).toMatchObject({ persona: { type: 'Student' } })
     })
 
     it('includes scenarios in returned character', async () => {
-      const result = await controller.getShowcaseById('Student')
+      const result = await controller.getShowcaseById('Student Showcase')
 
       expect(result.scenarios).toBeDefined()
       expect(Array.isArray(result.scenarios)).toBe(true)

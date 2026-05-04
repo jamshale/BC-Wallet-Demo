@@ -171,7 +171,7 @@ export const AcceptCredential: React.FC<Props> = ({
               schema: 'iglu:ca.bc.gov.digital/action/jsonschema/1-0-0',
               data: {
                 action: 'cred_not_received',
-                path: currentShowcase?.persona.type.toLowerCase(),
+                path: currentShowcase?.persona?.type?.toLowerCase(),
                 step: title,
               },
             },

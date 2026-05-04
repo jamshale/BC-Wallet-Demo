@@ -83,7 +83,7 @@ export const IntroductionContainer: React.FC<Props> = ({
         schema: 'iglu:ca.bc.gov.digital/action/jsonschema/1-0-0',
         data: {
           action: 'skip_credential',
-          path: currentShowcase?.persona.type.toLowerCase(),
+          path: currentShowcase?.persona?.type?.toLowerCase(),
           step: idToTitle[introductionStep],
         },
       },
@@ -97,7 +97,7 @@ export const IntroductionContainer: React.FC<Props> = ({
         schema: 'iglu:ca.bc.gov.digital/action/jsonschema/1-0-0',
         data: {
           action: 'next',
-          path: currentShowcase?.persona.type.toLowerCase(),
+          path: currentShowcase?.persona?.type?.toLowerCase(),
           step: idToTitle[introductionStep],
         },
       },
@@ -111,7 +111,7 @@ export const IntroductionContainer: React.FC<Props> = ({
         schema: 'iglu:ca.bc.gov.digital/action/jsonschema/1-0-0',
         data: {
           action: 'back',
-          path: currentShowcase?.persona.type.toLowerCase(),
+          path: currentShowcase?.persona?.type?.toLowerCase(),
           step: idToTitle[introductionStep],
         },
       },
@@ -170,7 +170,7 @@ export const IntroductionContainer: React.FC<Props> = ({
           connectionState={connectionState}
           title={title}
           text={text}
-          backgroundImage={currentShowcase?.persona.image}
+          backgroundImage={currentShowcase?.persona?.image}
         />
       )
     } else if (progress.startsWith('ACCEPT') && credentials && connectionId) {
@@ -190,7 +190,7 @@ export const IntroductionContainer: React.FC<Props> = ({
           key={progress}
           title={title}
           text={text}
-          characterName={currentShowcase?.persona.name ?? 'Unknown'}
+          characterName={currentShowcase?.persona?.name ?? 'Unknown'}
         />
       )
     } else {
@@ -246,7 +246,7 @@ export const IntroductionContainer: React.FC<Props> = ({
         schema: 'iglu:ca.bc.gov.digital/action/jsonschema/1-0-0',
         data: {
           action: 'leave',
-          path: currentShowcase?.persona.type.toLowerCase(),
+          path: currentShowcase?.persona?.type?.toLowerCase(),
           step: idToTitle[introductionStep],
         },
       },

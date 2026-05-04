@@ -34,7 +34,7 @@ export async function runSeed(): Promise<void> {
   const results = await Promise.all(
     showcases.map((showcase) =>
       ShowcaseModel.findOneAndUpdate(
-        { 'persona.type': showcase.persona.type },
+        { 'persona.type': showcase.persona?.type },
         { $set: showcase },
         {
           upsert: true,
@@ -47,7 +47,7 @@ export async function runSeed(): Promise<void> {
 
   logger.info(
     {
-      showcaseTypes: results.map((r) => r?.persona.type).filter(Boolean),
+      showcaseTypes: results.map((r) => r?.persona?.type).filter(Boolean),
       count: results.length,
     },
     'Seeded showcases',

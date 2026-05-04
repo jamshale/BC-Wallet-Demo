@@ -14,6 +14,8 @@ const minimal = {
 beforeAll(async () => {
   mongod = await MongoMemoryServer.create()
   await mongoose.connect(mongod.getUri())
+  // Explicitly build indexes for MongoDB Memory Server
+  await ShowcaseModel.syncIndexes()
 })
 
 // Clear between tests so documents from one test cannot affect another.

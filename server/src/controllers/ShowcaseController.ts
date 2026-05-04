@@ -1,19 +1,55 @@
 import { Get, JsonController, NotFoundError, Param } from 'routing-controllers'
 import { Service } from 'typedi'
 
-import { Credential, Showcase } from '../content/types'
 import { CredentialModel } from '../db/models/Credential'
 import { ShowcaseModel } from '../db/models/Showcase'
 import logger from '../utils/logger'
 
-type HydratedShowcase = Omit<Showcase, 'credentials'> & { credentials: Credential[] }
+async function hydrateCredentials(showcase: any) {
+  // Credentials are stored as IDs in the database
+  // Hydrate them by fetching the full credential objects
+  const credentialIds = showcase.credentials as string[]
+  const introductionCredentialIds = showcase.introduction?.flatMap((step: any) => step.credentials || []) || []
+  const allCredentialIds = [...new Set([...credentialIds, ...introductionCredentialIds])]
 
-async function hydrateCredentials(showcase: Showcase): Promise<HydratedShowcase> {
-  const ids = showcase.credentials
-  if (!ids?.length) return { ...showcase, credentials: [] }
-  const creds = await CredentialModel.find({ _id: { $in: ids } }).lean()
-  const credMap = new Map(creds.map((c) => [String(c._id), c]))
-  return { ...showcase, credentials: ids.map((id) => credMap.get(id)).filter(Boolean) as Credential[] }
+  if (!allCredentialIds?.length) {
+    return { ...(showcase.toObject?.() || showcase), credentials: [] }
+  }
+
+  try {
+    const credentials = await CredentialModel.find({ _id: { $in: allCredentialIds } }).lean()
+    const credMap = new Map(credentials.map((c) => [String(c._id), c]))
+
+    const mapCredentialIdToObject = (id: string) => {
+      const cred = credMap.get(id)
+      return cred
+        ? {
+            id: String(cred._id),
+            name: cred.name,
+            icon: cred.icon,
+            version: cred.version,
+            attributes: cred.attributes || [],
+          }
+        : null
+    }
+
+    const hydratedCredentials = credentialIds.map(mapCredentialIdToObject).filter(Boolean)
+
+    const hydratedIntroduction =
+      showcase.introduction?.map((step: any) => ({
+        ...step,
+        credentials: (step.credentials || []).map(mapCredentialIdToObject).filter(Boolean),
+      })) || []
+
+    return {
+      ...(showcase.toObject?.() || showcase),
+      credentials: hydratedCredentials,
+      introduction: hydratedIntroduction,
+    }
+  } catch (error) {
+    logger.error(error, 'Error hydrating credentials')
+    return { ...(showcase.toObject?.() || showcase), credentials: [] }
+  }
 }
 
 @JsonController('/showcases')
@@ -25,7 +61,7 @@ export class ShowcaseController {
   @Get('/:showcaseId')
   public async getShowcaseById(@Param('showcaseId') showcaseId: string) {
     logger.debug({ showcaseId }, 'Fetching showcase by id')
-    const showcase = await ShowcaseModel.findOne({ 'persona.type': showcaseId }).lean()
+    const showcase = await ShowcaseModel.findOne({ name: showcaseId }).lean()
 
     if (!showcase) {
       logger.warn({ showcaseId }, 'Showcase not found')

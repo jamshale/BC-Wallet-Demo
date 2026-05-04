@@ -32,7 +32,7 @@ export const PickCharacter: React.FC<Props> = ({ currentShowcase, showcases, tit
     track({
       id: 'character-selected',
       parameters: {
-        character: showcase.persona.name,
+        character: showcase.persona?.name || showcase.name,
       },
     })
   }
@@ -43,7 +43,7 @@ export const PickCharacter: React.FC<Props> = ({ currentShowcase, showcases, tit
 
     return (
       <motion.button
-        key={showcase.persona.type}
+        key={showcase.persona?.type || showcase.name}
         onClick={() => CharacterClickHandler(showcase)}
         whileHover={{ scale: 1.01 }}
         className="flex md:flex-row lg:flex-col"
@@ -52,14 +52,14 @@ export const PickCharacter: React.FC<Props> = ({ currentShowcase, showcases, tit
         <motion.img
           whileHover={{ scale: 1.05 }}
           className={`m-auto h-16 w-16 p-2 sm:h-20 sm:w-20 md:h-24 md:w-24 md:p-4 lg:h-36 lg:w-36 lg:p-8 rounded-full bg-bcgov-white dark:bg-bcgov-black my-6 shadow ${
-            currentShowcase?.persona.type === showcase.persona.type ? cardStyleSelected : cardStyleUnselected
+            currentShowcase?.persona?.type === showcase.persona?.type ? cardStyleSelected : cardStyleUnselected
           }`}
-          src={prependApiUrl(showcase.persona.image)}
-          alt={showcase.persona.name}
+          src={prependApiUrl(showcase.persona?.image || '')}
+          alt={showcase.persona?.name}
         />
         <div className="m-auto p-4 flex flex-1 flex-col text-left lg:text-center dark:text-white">
-          <h2 className="font-bold">{showcase.persona.name}</h2>
-          <p>{showcase.persona.type}</p>
+          <h2 className="font-bold">{showcase.persona?.name}</h2>
+          <p>{showcase.persona?.type}</p>
         </div>
       </motion.button>
     )

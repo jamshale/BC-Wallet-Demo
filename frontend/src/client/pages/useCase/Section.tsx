@@ -77,7 +77,7 @@ export const Section: React.FC<Props> = ({ connection, section, stepCount, secti
         schema: 'iglu:ca.bc.gov.digital/action/jsonschema/1-0-0',
         data: {
           action: 'leave',
-          path: `${currentShowcase?.persona.type.toLowerCase()}_${slug}`,
+          path: `${currentShowcase?.persona?.type?.toLowerCase()}_${slug}`,
           step: step.name,
         },
       },
@@ -98,7 +98,7 @@ export const Section: React.FC<Props> = ({ connection, section, stepCount, secti
           schema: 'iglu:ca.bc.gov.digital/action/jsonschema/1-0-0',
           data: {
             action: 'usecase_completed',
-            path: `${currentShowcase?.persona.type.toLowerCase()}_${slug}`,
+            path: `${currentShowcase?.persona?.type?.toLowerCase()}_${slug}`,
             step: step.name,
           },
         },
@@ -153,7 +153,7 @@ export const Section: React.FC<Props> = ({ connection, section, stepCount, secti
           schema: 'iglu:ca.bc.gov.digital/action/jsonschema/1-0-0',
           data: {
             action: 'next',
-            path: `${currentShowcase?.persona.type.toLowerCase()}_${slug}`,
+            path: `${currentShowcase?.persona?.type?.toLowerCase()}_${slug}`,
             step: step.name,
           },
         },
@@ -175,7 +175,7 @@ export const Section: React.FC<Props> = ({ connection, section, stepCount, secti
       return (
         <StartContainer
           key={step.screenId}
-          characterType={currentShowcase?.persona.type.toLowerCase()}
+          characterType={currentShowcase?.persona?.type?.toLowerCase()}
           step={step}
           entity={verifier}
           requestedCredentials={step.requestOptions?.requestedCredentials}
@@ -214,7 +214,7 @@ export const Section: React.FC<Props> = ({ connection, section, stepCount, secti
                   <StepProof
                     key={step.screenId}
                     entityName={verifier.name}
-                    characterType={currentShowcase?.persona.type.toLowerCase()}
+                    characterType={currentShowcase?.persona?.type?.toLowerCase()}
                     proof={proof}
                     step={step}
                     connectionId={connection.id}
@@ -232,7 +232,7 @@ export const Section: React.FC<Props> = ({ connection, section, stepCount, secti
                         schema: 'iglu:ca.bc.gov.digital/action/jsonschema/1-0-0',
                         data: {
                           action: 'back',
-                          path: `${currentShowcase?.persona.type.toLowerCase()}_${slug}`,
+                          path: `${currentShowcase?.persona?.type?.toLowerCase()}_${slug}`,
                           step: step.name,
                         },
                       },
@@ -252,7 +252,7 @@ export const Section: React.FC<Props> = ({ connection, section, stepCount, secti
                           schema: 'iglu:ca.bc.gov.digital/action/jsonschema/1-0-0',
                           data: {
                             action: 'next',
-                            path: `${currentShowcase?.persona.type.toLowerCase()}_${slug}`,
+                            path: `${currentShowcase?.persona?.type?.toLowerCase()}_${slug}`,
                             step: step.name,
                           },
                         },

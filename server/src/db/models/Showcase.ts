@@ -54,10 +54,10 @@ const RevocationInfoItemSchema = new Schema<RevocationInfoItem>(
 // Maps to Persona interface. Holds the character identity for this showcase.
 const PersonaSchema = new Schema<Persona>(
   {
-    name: { type: String, required: true },
+    name: { type: String, required: false },
     // type is the public slug (e.g. "Student"); uniqueness enforced via ShowcaseSchema index below.
-    type: { type: String, required: true },
-    image: { type: String, required: true },
+    type: { type: String, required: false },
+    image: { type: String, required: false },
   },
   embeddedSchemaOptions,
 )
@@ -81,7 +81,8 @@ const ShowcaseSchema = new Schema<Showcase>(
 )
 
 // Enforce uniqueness on persona.type so each showcase slug is distinct.
-ShowcaseSchema.index({ 'persona.type': 1 }, { unique: true })
+// Use sparse index so showcases without persona don't conflict.
+ShowcaseSchema.index({ 'persona.type': 1 }, { unique: true, sparse: true })
 
 // Removes all asset documents and their files from disk for the given showcase.
 // Shared across deletion hooks to avoid duplication.
