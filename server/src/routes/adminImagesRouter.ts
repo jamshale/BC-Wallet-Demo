@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express'
 
 import { Router } from 'express'
-import { readdirSync } from 'fs'
+import { readdirSync, readFileSync, writeFileSync } from 'fs'
 import multer from 'multer'
 import path from 'path'
 
@@ -10,12 +10,35 @@ import logger from '../utils/logger'
 
 const router = Router()
 
+/**
+ * Sanitize SVG content by removing potentially dangerous elements and attributes
+ * Removes: script tags, event handlers (on*), external references, style tags with expressions
+ */
+function sanitizeSVG(content: string): string {
+  let sanitized = content
+  // Remove script tags and content
+  sanitized = sanitized.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+  // Remove event handlers (onclick, onerror, onload, etc.)
+  sanitized = sanitized.replace(/\s+on\w+\s*=\s*["'][^"']*["']/gi, '')
+  sanitized = sanitized.replace(/\s+on\w+\s*=\s*[^\s>]*/gi, '')
+  // Remove style tags that could contain expressions
+  sanitized = sanitized.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+  // Remove external entity declarations
+  sanitized = sanitized.replace(/<!ENTITY[^>]*>/gi, '')
+  // Remove CDATA sections with potential code
+  sanitized = sanitized.replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, '')
+  // Remove href/xlink:href that reference javascript:
+  sanitized = sanitized.replace(/\s+(href|xlink:href)\s*=\s*["']javascript:[^"']*["']/gi, '')
+  return sanitized
+}
+
 // Configure multer for image file uploads
 const upload = multer({
   storage: multer.diskStorage({
     destination: (_req, _file, cb) => {
-      const publicDir = path.join(__dirname, '../public')
-      cb(null, publicDir)
+      // Upload all images to /public/common so GET /admin/images can list them
+      const commonDir = path.join(__dirname, '../public/common')
+      cb(null, commonDir)
     },
     filename: (_req, file, cb) => {
       // Sanitize filename
@@ -69,7 +92,8 @@ router.get('/', requireRole(['admin', 'creator', 'viewer']), (_req: Request, res
 
 /**
  * POST /admin/images
- * Upload a new image file to the public directory.
+ * Upload a new image file to the public/common directory.
+ * SVG files are sanitized server-side to remove potentially dangerous content.
  * Requires: admin or creator role
  */
 router.post(
@@ -84,7 +108,23 @@ router.post(
 
     logger.debug({ filename: req.file.filename }, 'Admin: upload image file')
 
-    const relativePath = `/public/${req.file.filename}`
+    // Sanitize SVG files server-side
+    const fileExtension = path.extname(req.file.filename).toLowerCase()
+    if (fileExtension === '.svg') {
+      try {
+        const filePath = req.file.path
+        const content = readFileSync(filePath, 'utf-8')
+        const sanitized = sanitizeSVG(content)
+        writeFileSync(filePath, sanitized, 'utf-8')
+        logger.debug({ filename: req.file.filename }, 'SVG file sanitized')
+      } catch (error) {
+        logger.error(error, 'Error sanitizing SVG file')
+        res.status(500).json({ error: 'Failed to sanitize SVG file' })
+        return
+      }
+    }
+
+    const relativePath = `/public/common/${req.file.filename}`
     res.status(201).json({
       message: 'Image file uploaded successfully',
       path: relativePath,

@@ -29,6 +29,23 @@ export class CredentialController {
   }
 
   /**
+   * Retrieve credential by connection id
+   */
+  @Get('/connId/:connId')
+  public async getCredByConnId(@Param('connId') connId: string) {
+    logger.debug({ connId }, 'Fetching credentials by connection id')
+    const res = (
+      await tractionRequest.get('/issue-credential/records', {
+        params: {
+          connection_id: connId,
+        },
+      })
+    ).data
+
+    return res
+  }
+
+  /**
    * Retrieve credential by id
    */
   @Get('/:credentialId')
@@ -50,19 +67,6 @@ export class CredentialController {
       version: (credential as any).version,
       attributes: (credential as any).attributes || [],
     }
-  }
-  @Get('/connId/:connId')
-  public async getCredByConnId(@Param('connId') connId: string) {
-    logger.debug({ connId }, 'Fetching credentials by connection id')
-    const res = (
-      await tractionRequest.get('/issue-credential/records', {
-        params: {
-          connection_id: connId,
-        },
-      })
-    ).data
-
-    return res
   }
 
   @Post('/getOrCreateCredDef')

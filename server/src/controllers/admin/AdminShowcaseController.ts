@@ -10,6 +10,8 @@ import logger from '../../utils/logger'
 export class AdminShowcaseController {
   /**
    * Create a new showcase
+   * Note: Showcase name must be unique (enforced via database index).
+   * Admin operations key off showcase name for updates/deletes.
    */
   @Post('/')
   public async createShowcase(@Body() body: Showcase) {
@@ -27,6 +29,7 @@ export class AdminShowcaseController {
 
   /**
    * Update a showcase by name
+   * Showcase name is unique, so this operation is deterministic and safe.
    */
   @Put('/:showcaseName')
   public async updateShowcase(@Param('showcaseName') showcaseName: string, @Body() body: Partial<Showcase>) {
@@ -52,6 +55,7 @@ export class AdminShowcaseController {
 
   /**
    * Delete a showcase by name
+   * Showcase name is unique, so this operation is deterministic and safe.
    */
   @Delete('/:showcaseName')
   public async deleteShowcase(@Param('showcaseName') showcaseName: string) {

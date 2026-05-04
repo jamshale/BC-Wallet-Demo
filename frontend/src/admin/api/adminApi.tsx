@@ -71,15 +71,18 @@ export const updateShowcase = async (
   showcaseName: string,
   updates: Partial<Showcase>,
 ): Promise<Showcase> => {
-  // Dehydrate credentials from full objects to just IDs
-  const dehydratedUpdates = {
-    ...updates,
-    credentials: updates.credentials?.map((cred) => (typeof cred === 'string' ? cred : cred.id)) || [],
-    // Also dehydrate credentials within introduction steps
-    introduction: updates.introduction?.map((step) => ({
+  // Only dehydrate credentials if they were actually provided in the update
+  const dehydratedUpdates: any = { ...updates }
+
+  if (updates.credentials) {
+    dehydratedUpdates.credentials = updates.credentials.map((cred) => (typeof cred === 'string' ? cred : cred.id))
+  }
+
+  if (updates.introduction) {
+    dehydratedUpdates.introduction = updates.introduction.map((step) => ({
       ...step,
       credentials: step.credentials?.map((cred) => (typeof cred === 'string' ? cred : cred.id)) || [],
-    })),
+    }))
   }
 
   const res = await fetch(`${adminBaseUrl}/showcases/${encodeURIComponent(showcaseName)}`, {

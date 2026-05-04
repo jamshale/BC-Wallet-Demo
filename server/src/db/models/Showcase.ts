@@ -63,11 +63,12 @@ const PersonaSchema = new Schema<Persona>(
 )
 
 // Maps to Showcase interface. Top-level collection; persona.type is the public
-// slug (e.g. "Student") and must be unique across all showcases.
+// slug (e.g. "Student") and must be unique across all showcases when present.
+// Persona itself is optional to allow showcases without character identity.
 const ShowcaseSchema = new Schema<Showcase>(
   {
     name: { type: String, required: true },
-    persona: { type: PersonaSchema, required: true },
+    persona: { type: PersonaSchema, required: false },
     status: { type: String, enum: ['active', 'hidden', 'pending'] satisfies ShowcaseStatus[], default: 'active' },
     description: String,
     credentials: { type: [String], required: true, default: [] },
@@ -79,6 +80,9 @@ const ShowcaseSchema = new Schema<Showcase>(
   },
   baseSchemaOptions,
 )
+
+// Enforce uniqueness on name for admin operations that key off showcase name.
+ShowcaseSchema.index({ name: 1 }, { unique: true })
 
 // Enforce uniqueness on persona.type so each showcase slug is distinct.
 // Use sparse index so showcases without persona don't conflict.
