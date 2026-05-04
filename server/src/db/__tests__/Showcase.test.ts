@@ -40,7 +40,15 @@ describe('ShowcaseModel', () => {
   })
 
   it('rejects a showcase with a missing required field', async () => {
-    await expect(ShowcaseModel.create({ name: 'Student Showcase' })).rejects.toThrow()
+    await expect(ShowcaseModel.create({ persona: { name: 'Alice', type: 'Student' } })).rejects.toThrow()
+  })
+
+  it('persists a showcase without optional persona field', async () => {
+    const doc = await ShowcaseModel.create({ name: 'No Persona Showcase' })
+    const json = doc.toJSON()
+    expect(json.name).toBe('No Persona Showcase')
+    expect(json.persona).toBeUndefined()
+    expect(json.status).toBe('active')
   })
 
   it('enforces unique index on persona.type', async () => {
