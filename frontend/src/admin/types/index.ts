@@ -82,10 +82,3 @@ export interface Showcase {
   revocationInfo?: RevocationInfoItem[]
   credentials: Credential[]
 }
-
-export function formatScreenId(id: string): string {
-  return id
-    .split('_')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ')
-}

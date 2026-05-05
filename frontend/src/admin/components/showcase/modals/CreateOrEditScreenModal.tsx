@@ -4,7 +4,7 @@ import { PencilIcon, XMarkIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { useEffect, useState, useRef } from 'react'
 
 import { publicBaseUrl } from '../../../api/adminApi'
-import { formatScreenId } from '../../../types'
+import { formatScreenId } from '../../../utils/formatScreenId'
 import { ImageUploadModal } from '../../ImageUploadModal'
 
 import { RequestedCredentialsEditor } from './RequestedCredentialsEditor'
