@@ -32,7 +32,7 @@ export const PickCharacter: React.FC<Props> = ({ currentShowcase, showcases, tit
     track({
       id: 'character-selected',
       parameters: {
-        character: showcase.persona?.name || showcase.name,
+        character: showcase.persona?.name || 'unknown',
       },
     })
   }
@@ -43,7 +43,7 @@ export const PickCharacter: React.FC<Props> = ({ currentShowcase, showcases, tit
 
     return (
       <motion.button
-        key={showcase.persona?.type || showcase.name}
+        key={showcase.persona?.type || 'unknown'}
         onClick={() => CharacterClickHandler(showcase)}
         whileHover={{ scale: 1.01 }}
         className="flex md:flex-row lg:flex-col"
