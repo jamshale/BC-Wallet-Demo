@@ -12,7 +12,7 @@ interface CreateShowcaseModalProps {
 
 export function CreateShowcaseModal({ isOpen, onClose, onSuccess }: CreateShowcaseModalProps) {
   const auth = useAuth()
-  const [title, setTitle] = useState('')
+  const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -20,7 +20,7 @@ export function CreateShowcaseModal({ isOpen, onClose, onSuccess }: CreateShowca
   if (!isOpen) return null
 
   const handleCreate = async () => {
-    if (!title.trim()) {
+    if (!name.trim()) {
       setError('Please enter a showcase title')
       return
     }
@@ -28,9 +28,9 @@ export function CreateShowcaseModal({ isOpen, onClose, onSuccess }: CreateShowca
     try {
       setIsLoading(true)
       setError(null)
-      const response = await createShowcase(auth, title, description)
+      const response = await createShowcase(auth, name, description)
       // Reset form and close modal
-      setTitle('')
+      setName('')
       setDescription('')
       onClose()
       // Navigate to the new showcase
@@ -62,8 +62,8 @@ export function CreateShowcaseModal({ isOpen, onClose, onSuccess }: CreateShowca
             <label className="block text-sm font-semibold text-bcgov-black mb-2">Showcase Title</label>
             <input
               type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               placeholder="Enter showcase title"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-bcgov-blue"
               disabled={isLoading}
