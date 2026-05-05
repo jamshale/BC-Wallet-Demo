@@ -66,7 +66,7 @@ export const DashboardPage: React.FC = () => {
       track({
         id: 'demo-character-completed',
         parameters: {
-          character: currentShowcase.persona?.name || currentShowcase.name,
+          character: currentShowcase.persona?.name || 'unknown',
         },
       })
     }
